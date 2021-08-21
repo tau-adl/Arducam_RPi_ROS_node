@@ -1,0 +1,14 @@
+<launch>
+	
+	<!-- Command Line Arguments -->
+	<arg name="exposure" default="660" />
+	<arg name="gain" default="1" />
+	<arg name="fps" default="30" />
+	<!-- Make arguments available to parameter server -->
+	
+<node pkg="cpp_stream" name="cpp_stream_node" type="cpp_stream_node" output="screen">
+	<param name="exposure" type="int" value="$(arg exposure)" />
+	<param name="gain" type="int" value="$(arg gain)" />
+	<param name="fps" type="int" value="$(arg fps)" />
+</node>
+</launch>
