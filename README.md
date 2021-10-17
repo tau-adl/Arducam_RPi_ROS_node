@@ -116,3 +116,52 @@ When node is initializing it will print out minimal and maximal exposure and gai
 
 
 You are welcome to expand this node functionality as you wish.
+
+## Running full setup RPi and Host PC
+
+First, configure host PC to be ROS master by setting environment variable as bellow, it will be the roscore instance to which RPi will publish the topics:
+Run on host:
+```
+export ROS_MASTER_URI=http://localhost:11311
+roscore
+``` 
+Afterwards log in to RPi through SSH - either from 2 separate sessions then run:
+```
+export ROS_IP={fill in IP of RPi}
+export ROS_MASTER_URI=http://{fill in IP of HOST pc}:11311
+sudo pigpiod - (Or set is startup service)
+source ~/{folder_where_mpu9150_installed}/devel/setup.bash
+rosrun mpu9150_imu_pi imupi_python.py
+```
+From another SSH session - run:
+```
+export ROS_IP={fill in IP of RPi}
+export ROS_MASTER_URI=http://{fill in IP of HOST pc}:11311
+source ~/{folder_where_arducam_stream_installed}/devel/setup.bash
+roslaunch cpp_stream cam_stream.launch gain:={desired_gain} exposure:={desired_exposure}
+```
+On host PC open another 3 (4 for VINS-MONO) terminals:
+In terminal A - run:
+```
+rosrun image_transport republish compressed in:=/camera/image raw out:=/camera_decompressed/image_raw
+```
+In terminal B - run:
+```
+source binning_ws/devel/setup.bash
+rosrun binning binning_node
+```
+In terminal C – run for ORB-SLAM3:
+```
+source ./lab3/lab3_ws/devel/setup.bash
+roslaunch orb_slam3_wrapper orb_slam3_mono_inertial.launch
+```
+or
+```
+source ./vins_mono_ws/devel/setup.bash
+roslaunch vins_estimator arducam.launch
+```
+For VINS-MONO open another terminal – D and run RVIZ configuration:
+```
+source ./vins_mono_ws/devel/setup.bash
+roslaunch vins_estimator vins_rviz.launch
+```
